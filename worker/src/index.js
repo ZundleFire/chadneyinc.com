@@ -28,21 +28,34 @@ export default {
 
 // ── PAYMENT VERIFICATION ──────────────────────────────────────────────────────
 async function handleVerify(url, env) {
-  // PayPal passes the order ID as ?token= on the return URL
-  const paypalOrderId = url.searchParams.get('token');
+  // PayPal NCP links pass: tx=TRANSACTION_ID, st=COMPLETED, amt=5.00, cc=USD
+  const txId = url.searchParams.get('tx');
+  const status = url.searchParams.get('st');
 
-  if (!paypalOrderId) {
+  if (!txId) {
     return errorPage(
       'No payment information found.',
       'If you completed your payment, please reach out on social media with your PayPal receipt and I\'ll get your download to you personally.',
     );
   }
 
-  // Confirm the order is genuinely completed via PayPal API
-  let order;
+  if (status !== 'COMPLETED') {
+    return errorPage(
+      'Payment not completed.',
+      'If you believe this is an error, please reach out on social media with your PayPal receipt.',
+    );
+  }
+
+  // Confirm the capture is genuine via PayPal API
   try {
     const accessToken = await getPayPalAccessToken(env);
-    order = await getPayPalOrder(paypalOrderId, accessToken);
+    const capture = await getPayPalCapture(txId, accessToken);
+    if (capture.status !== 'COMPLETED') {
+      return errorPage(
+        'Could not verify your payment.',
+        'Please reach out on social media with your PayPal receipt and I\'ll sort it out for you.',
+      );
+    }
   } catch (err) {
     console.error('PayPal API error:', err);
     return errorPage(
@@ -51,17 +64,9 @@ async function handleVerify(url, env) {
     );
   }
 
-  if (order.status !== 'COMPLETED') {
-    return errorPage(
-      'Payment not completed yet.',
-      'If you believe this is an error, please reach out on social media with your PayPal receipt.',
-    );
-  }
-
-  // Guard against replayed order IDs — one order = one download token
-  const existingToken = await env.DOWNLOAD_TOKENS.get(`order:${paypalOrderId}`);
+  // Guard against replayed transaction IDs — one payment = one download token
+  const existingToken = await env.DOWNLOAD_TOKENS.get(`tx:${txId}`, { type: 'text' });
   if (existingToken) {
-    // Order already redeemed — redirect to the existing token so buyer can still download
     return Response.redirect(`https://download.chadneyinc.com/get?token=${existingToken}`, 302);
   }
 
@@ -69,14 +74,12 @@ async function handleVerify(url, env) {
   const downloadToken = crypto.randomUUID();
 
   await Promise.all([
-    // Token → product mapping
     env.DOWNLOAD_TOKENS.put(
       downloadToken,
       JSON.stringify({ product: 'holistic-sick-day-protocol', used: false, createdAt: Date.now() }),
       { expirationTtl: 172800 },
     ),
-    // Order ID → token mapping (prevents replay)
-    env.DOWNLOAD_TOKENS.put(`order:${paypalOrderId}`, downloadToken, { expirationTtl: 172800 }),
+    env.DOWNLOAD_TOKENS.put(`tx:${txId}`, downloadToken, { expirationTtl: 172800 }),
   ]);
 
   return Response.redirect(`https://download.chadneyinc.com/get?token=${downloadToken}`, 302);
@@ -89,15 +92,13 @@ async function handleDownload(url, env) {
     return errorPage('Invalid download link.', 'Please reach out on social media if you need help.');
   }
 
-  const raw = await env.DOWNLOAD_TOKENS.get(token);
-  if (!raw) {
+  const data = await env.DOWNLOAD_TOKENS.get(token, { type: 'json' });
+  if (!data) {
     return errorPage(
       'This link has expired or does not exist.',
       'Download links are valid for 48 hours. Please reach out on social media if you need assistance.',
     );
   }
-
-  const data = JSON.parse(raw);
 
   if (data.used) {
     return errorPage(
@@ -111,7 +112,7 @@ async function handleDownload(url, env) {
     return errorPage('Product not found.', 'Please reach out on social media for assistance.');
   }
 
-  // Mark token used before streaming so a reload can\'t double-download
+  // Mark token used before streaming so a reload can't double-download
   await env.DOWNLOAD_TOKENS.put(
     token,
     JSON.stringify({ ...data, used: true, usedAt: Date.now() }),
@@ -151,8 +152,8 @@ async function getPayPalAccessToken(env) {
   return data.access_token;
 }
 
-async function getPayPalOrder(orderId, accessToken) {
-  const res = await fetch(`https://api-m.paypal.com/v2/checkout/orders/${orderId}`, {
+async function getPayPalCapture(captureId, accessToken) {
+  const res = await fetch(`https://api-m.paypal.com/v2/payments/captures/${captureId}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   return res.json();
