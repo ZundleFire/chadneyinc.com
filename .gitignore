@@ -1,0 +1,5 @@
+# Paid digital products — stored in Cloudflare R2, not in the public repo
+*.pdf
+
+# Worker dependencies
+worker/node_modules/

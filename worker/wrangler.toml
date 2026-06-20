@@ -1,0 +1,16 @@
+name = "chadney-downloads"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# custom_domain = true tells Cloudflare to manage the DNS record automatically
+routes = [
+  { pattern = "download.chadneyinc.com", custom_domain = true }
+]
+
+[[kv_namespaces]]
+binding = "DOWNLOAD_TOKENS"
+id = "88e65366916045c2afc56e7c58d3eba5"
+
+[[r2_buckets]]
+binding = "PRODUCTS"
+bucket_name = "chadney-products"
