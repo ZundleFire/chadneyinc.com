@@ -127,10 +127,11 @@ async function handleDownload(url, env) {
     );
   }
 
+  const safeName = product.displayName.replace(/["\\\r\n]/g, '_');
   return new Response(object.body, {
     headers: {
       'Content-Type':        'application/pdf',
-      'Content-Disposition': `attachment; filename="${product.displayName}.pdf"`,
+      'Content-Disposition': `attachment; filename="${safeName}.pdf"`,
       'Cache-Control':       'no-store',
     },
   });
@@ -159,6 +160,15 @@ async function getPayPalCapture(captureId, accessToken) {
   return res.json();
 }
 
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // ── ERROR PAGE ────────────────────────────────────────────────────────────────
 function errorPage(heading, detail) {
   return new Response(
@@ -176,8 +186,8 @@ function errorPage(heading, detail) {
   </style>
 </head>
 <body>
-  <h1>${heading}</h1>
-  <p>${detail}</p>
+  <h1>${escHtml(heading)}</h1>
+  <p>${escHtml(detail)}</p>
   <a class="back" href="https://chadneyinc.com">← Back to CrunchyChadPad</a>
 </body>
 </html>`,

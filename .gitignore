@@ -1,5 +1,9 @@
 # Paid digital products — stored in Cloudflare R2, not in the public repo
 *.pdf
 
+# Wrangler local cache and dev state
+.wrangler/
+worker/.wrangler/
+
 # Worker dependencies
 worker/node_modules/
