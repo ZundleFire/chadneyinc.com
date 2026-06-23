@@ -97,6 +97,20 @@
       </div>
     </section>
 
+    <!-- Knoxville Local Offer -->
+    <div class="section local-offer-section">
+      <button class="local-offer__btn" id="openLocalOffer">
+        <span class="local-offer__emoji">🎁</span>
+        <span class="local-offer__text">
+          <strong>Local to the Knoxville area?</strong>
+          <small>Click here for a free gift just for you!</small>
+        </span>
+        <svg class="local-offer__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+
   </main>
 
   <!-- ── FOOTER ─────────────────────────────────────────── -->
@@ -106,6 +120,34 @@
       <span id="themeIcon">☀️</span>
     </button>
   </footer>
+
+  <!-- Lead Capture Modal -->
+  <div class="modal-overlay" id="localModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal">
+      <button class="modal__close" id="closeModal" aria-label="Close">✕</button>
+      <h2 id="modalTitle" class="modal__title">🎁 A Free Gift for You!</h2>
+      <p class="modal__body">Since you're local to Knoxville, I'd love to connect and send you something special. Drop your info below and I'll reach out soon!</p>
+      <form class="modal__form" id="localForm">
+        <div class="form-group">
+          <label for="fieldName">Your Name</label>
+          <input type="text" id="fieldName" name="name" required placeholder="First &amp; Last Name" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="fieldEmail">Email Address</label>
+          <input type="email" id="fieldEmail" name="email" required placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="fieldPhone">Phone <span class="optional">(optional)</span></label>
+          <input type="tel" id="fieldPhone" name="phone" placeholder="(865) 555-0123" autocomplete="tel" />
+        </div>
+        <button type="submit" class="modal__submit">Send My Info →</button>
+      </form>
+      <div class="modal__success" id="modalSuccess" hidden>
+        <span class="modal__success-icon">🎉</span>
+        <p>You're all set! I'll be in touch soon.</p>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
   <script src="script.js"></script>

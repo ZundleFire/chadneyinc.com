@@ -291,47 +291,6 @@ void main() {
     );
   }
 
-  let activeShapeRipples = 0;
-  const hoverCooldown    = new WeakMap();
-
-  // Hover: shape-matched rings — start as element outline, morph to oval as they spread
-  function spawnShapeRipple(target) {
-    if (activeShapeRipples >= 2) return;
-    const now = performance.now();
-    if (now - (hoverCooldown.get(target) || 0) < 1200) return;
-    hoverCooldown.set(target, now);
-
-    const rect = target.getBoundingClientRect();
-    const br   = getComputedStyle(target).borderRadius;
-    activeShapeRipples++;
-    for (let k = 0; k < 3; k++) {
-      const div = document.createElement('div');
-      div.style.cssText = [
-        'position:fixed', 'pointer-events:none', 'z-index:0', 'box-sizing:border-box',
-        `left:${rect.left}px`, `top:${rect.top}px`,
-        `width:${rect.width}px`, `height:${rect.height}px`,
-        `border-radius:${br}`,
-        'border:2px solid rgba(160,220,255,0.45)',
-        'backdrop-filter:blur(3px)', '-webkit-backdrop-filter:blur(3px)',
-      ].join(';');
-      document.body.appendChild(div);
-      gsap.fromTo(div,
-        { scale: 1, opacity: 0.80 },
-        {
-          scale: 1.5 + k * 0.18,
-          opacity: 0,
-          borderRadius: '50%',
-          borderWidth: '0.5px',
-          duration: 1.4 + k * 0.18,
-          delay: k * 0.22,
-          ease: 'power1.out',
-          transformOrigin: '50% 50%',
-          onComplete: () => { if (k === 2) activeShapeRipples--; div.remove(); },
-        }
-      );
-    }
-  }
-
   function addRipple(cx, cy) {
     if (ripples.length >= MAX) ripples.shift();
     ripples.push({ cx, cy, uvx: cx / W, uvy: 1 - cy / H,
@@ -397,17 +356,52 @@ void main() {
   });
 
   document.addEventListener('click', (e) => addRipple(e.clientX, e.clientY));
-
-  reactors.forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      spawnShapeRipple(el);
-      // subtle WebGL caustic pulse at element center
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-      if (ripples.length < MAX)
-        ripples.push({ cx, cy, uvx: cx / W, uvy: 1 - cy / H,
-                       t0: nowSec(), dur: 1.4, maxR: Math.hypot(W, H) * 0.16,
-                       amp: 0.45, react: false, hit: new Set() });
-    });
-  });
 })();
+
+/* ── KNOXVILLE LOCAL OFFER MODAL ───────────────────────── */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKA1123sFDa1Pu1Md_B3N2nGe2p8gzhNkg0P_QZ7qOktKVsCiY-ykKOJAonYfFqK4/exec';
+
+const localModal   = document.getElementById('localModal');
+const openLocalBtn = document.getElementById('openLocalOffer');
+const closeModalBtn = document.getElementById('closeModal');
+const localForm    = document.getElementById('localForm');
+const modalSuccess = document.getElementById('modalSuccess');
+
+function openLocalModal() {
+  localModal.classList.add('is-open');
+  localModal.removeAttribute('aria-hidden');
+  document.body.style.overflow = 'hidden';
+  closeModalBtn.focus();
+}
+
+function closeLocalModal() {
+  localModal.classList.remove('is-open');
+  localModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  openLocalBtn.focus();
+}
+
+openLocalBtn.addEventListener('click', openLocalModal);
+closeModalBtn.addEventListener('click', closeLocalModal);
+
+localModal.addEventListener('click', (e) => {
+  if (e.target === localModal) closeLocalModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && localModal.classList.contains('is-open')) closeLocalModal();
+});
+
+localForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const submitBtn = localForm.querySelector('.modal__submit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending…';
+
+  try {
+    await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: new FormData(localForm) });
+  } catch (_) { /* no-cors fetch is opaque — errors are network failures only */ }
+
+  localForm.hidden = true;
+  modalSuccess.removeAttribute('hidden');
+});
