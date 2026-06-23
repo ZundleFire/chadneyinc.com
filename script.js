@@ -392,8 +392,29 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && localModal.classList.contains('is-open')) closeLocalModal();
 });
 
+const phoneInput = document.getElementById('fieldPhone');
+
+phoneInput.addEventListener('blur', () => {
+  if (phoneInput.value && !phoneInput.validity.valid) {
+    phoneInput.classList.add('show-error');
+  } else {
+    phoneInput.classList.remove('show-error');
+  }
+});
+
+phoneInput.addEventListener('input', () => {
+  if (phoneInput.validity.valid) phoneInput.classList.remove('show-error');
+});
+
 localForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  if (!phoneInput.validity.valid) {
+    phoneInput.classList.add('show-error');
+    phoneInput.focus();
+    return;
+  }
+
   const submitBtn = localForm.querySelector('.modal__submit');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Sending…';

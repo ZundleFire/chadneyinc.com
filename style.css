@@ -462,6 +462,17 @@ button { font-family: var(--font); cursor: pointer; border: none; background: no
 
 .form-group input::placeholder { color: var(--text-muted); opacity: .55; }
 
+.field-error {
+  font-size:  .75rem;
+  color:      #f87171;
+  display:    none;
+}
+
+.form-group input:user-invalid ~ .field-error,
+.form-group input.show-error ~ .field-error {
+  display: block;
+}
+
 .form-group input:focus {
   border-color: var(--accent);
   box-shadow:   0 0 0 3px var(--accent-glow);
