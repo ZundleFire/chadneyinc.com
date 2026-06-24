@@ -359,7 +359,7 @@ void main() {
 })();
 
 /* ── KNOXVILLE LOCAL OFFER MODAL ───────────────────────── */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygTgG6plTlT7lOIAQCX8O-Sp4snAsHEfjYPxVcN3xZkOlHCEOSBAjZk2kVnEHoG8Ie/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwL9a6PcD7usjANVd38lY0ZZo0JKvLOQXVsJ1xjjKXZs-TcVyXE8frRzFVws5MO_4d2/exec';
 
 const localModal   = document.getElementById('localModal');
 const openLocalBtn = document.getElementById('openLocalOffer');
