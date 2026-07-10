@@ -361,13 +361,61 @@ void main() {
 /* ── KNOXVILLE LOCAL OFFER MODAL ───────────────────────── */
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwL9a6PcD7usjANVd38lY0ZZo0JKvLOQXVsJ1xjjKXZs-TcVyXE8frRzFVws5MO_4d2/exec';
 
-const localModal   = document.getElementById('localModal');
-const openLocalBtn = document.getElementById('openLocalOffer');
-const closeModalBtn = document.getElementById('closeModal');
-const localForm    = document.getElementById('localForm');
-const modalSuccess = document.getElementById('modalSuccess');
+const localModal      = document.getElementById('localModal');
+const openLocalBtn    = document.getElementById('openLocalOffer');
+const waterLink       = document.getElementById('waterLink');
+const closeModalBtn   = document.getElementById('closeModal');
+const localForm       = document.getElementById('localForm');
+const modalSuccess    = document.getElementById('modalSuccess');
+const modalTitle      = document.getElementById('modalTitle');
+const modalBody       = document.querySelector('.modal__body');
+const fieldSource     = document.getElementById('fieldSource');
+const successIcon     = document.getElementById('successIcon');
+const successMessage  = document.getElementById('successMessage');
+const successContinue = document.getElementById('successContinue');
 
-function openLocalModal() {
+const MODAL_MODES = {
+  knoxville: {
+    title:      '🎁 A Free Gift for You!',
+    body:       "Since you're local to Knoxville, I'd love to connect and send you something special. Drop your info below and I'll reach out soon!",
+    source:     'Website Form',
+    successIcon: '🎉',
+    successMsg: "You're all set! I'll be in touch soon.",
+    continueBtn: false,
+  },
+  water: {
+    title:      '💧 The Water That Changed My Life',
+    body:       "Enter your info below and you'll get instant access to the video!",
+    source:     'Water Video',
+    successIcon: '🎬',
+    successMsg: "You're all set! Tap below to watch the video.",
+    continueBtn: true,
+  },
+};
+
+let lastTrigger = null;
+
+function openLocalModal(modeKey, trigger) {
+  const mode = MODAL_MODES[modeKey];
+  lastTrigger = trigger;
+
+  modalTitle.textContent     = mode.title;
+  modalBody.textContent      = mode.body;
+  fieldSource.value          = mode.source;
+  successIcon.textContent    = mode.successIcon;
+  successMessage.textContent = mode.successMsg;
+  successContinue.hidden     = !mode.continueBtn;
+
+  // Reset to a fresh form each time the modal opens
+  localForm.reset();
+  fieldSource.value = mode.source;
+  document.getElementById('fieldPhone').classList.remove('show-error');
+  localForm.hidden = false;
+  modalSuccess.setAttribute('hidden', '');
+  const submitBtn = localForm.querySelector('.modal__submit');
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Send My Info →';
+
   localModal.classList.add('is-open');
   localModal.removeAttribute('aria-hidden');
   document.body.style.overflow = 'hidden';
@@ -378,10 +426,14 @@ function closeLocalModal() {
   localModal.classList.remove('is-open');
   localModal.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-  openLocalBtn.focus();
+  if (lastTrigger) lastTrigger.focus();
 }
 
-openLocalBtn.addEventListener('click', openLocalModal);
+openLocalBtn.addEventListener('click', () => openLocalModal('knoxville', openLocalBtn));
+waterLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  openLocalModal('water', waterLink);
+});
 closeModalBtn.addEventListener('click', closeLocalModal);
 
 localModal.addEventListener('click', (e) => {

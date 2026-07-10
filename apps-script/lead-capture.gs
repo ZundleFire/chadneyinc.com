@@ -53,12 +53,13 @@ function doPost(e) {
     var sheet = getLeadSheet();
     ensureHeaders(sheet);
 
-    var name  = e.parameter.name  || '';
-    var email = e.parameter.email || '';
-    var phone = e.parameter.phone || '';
-    var date  = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MM/dd/yyyy');
+    var name   = e.parameter.name   || '';
+    var email  = e.parameter.email  || '';
+    var phone  = e.parameter.phone  || '';
+    var source = e.parameter.source || 'Website Form';
+    var date   = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MM/dd/yyyy');
 
-    sheet.appendRow([date, name, phone, email, 'Website Form', 'Follow Up']);
+    sheet.appendRow([date, name, phone, email, source, 'Follow Up']);
 
     // Sort all data rows (skip header) by date descending so newest is at top
     var lastRow = sheet.getLastRow();
@@ -69,14 +70,14 @@ function doPost(e) {
 
     MailApp.sendEmail({
       to:       NOTIFY_EMAIL,
-      subject:  '🎁 New Knoxville Lead — ' + name,
-      htmlBody: '<h2 style="font-family:sans-serif">New lead from CrunchyChadPad</h2>'
+      subject:  '🎁 New Lead (' + source + ') — ' + name,
+      htmlBody: '<h2 style="font-family:sans-serif">New lead from chadneyinc.com</h2>'
               + '<table style="font-family:sans-serif;border-collapse:collapse">'
               + '<tr><td style="padding:6px 12px;font-weight:bold">Name</td><td style="padding:6px 12px">'   + name  + '</td></tr>'
               + '<tr><td style="padding:6px 12px;font-weight:bold">Phone</td><td style="padding:6px 12px">'  + phone + '</td></tr>'
               + '<tr><td style="padding:6px 12px;font-weight:bold">Email</td><td style="padding:6px 12px">'  + (email || 'Not provided') + '</td></tr>'
               + '<tr><td style="padding:6px 12px;font-weight:bold">Date</td><td style="padding:6px 12px">'   + date  + '</td></tr>'
-              + '<tr><td style="padding:6px 12px;font-weight:bold">Source</td><td style="padding:6px 12px">Website Form</td></tr>'
+              + '<tr><td style="padding:6px 12px;font-weight:bold">Source</td><td style="padding:6px 12px">' + source + '</td></tr>'
               + '</table>'
     });
 

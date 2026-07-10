@@ -514,6 +514,27 @@ button { font-family: var(--font); cursor: pointer; border: none; background: no
   font-weight: 600;
 }
 
+.modal__continue {
+  display:       inline-block;
+  margin-top:    1rem;
+  padding:       .75rem 1.5rem;
+  background:    var(--accent);
+  color:         #fff;
+  border-radius: var(--radius-sm);
+  font-size:     .95rem;
+  font-weight:   600;
+  text-decoration: none;
+  transition:    background var(--transition), transform var(--transition);
+}
+
+.modal__continue:hover {
+  background: var(--accent-h);
+  color:      var(--bg);
+  transform:  translateY(-1px);
+}
+
+.modal__continue[hidden] { display: none; }
+
 /* ── FOCUS-VISIBLE ──────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--accent);
