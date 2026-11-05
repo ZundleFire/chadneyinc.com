@@ -359,7 +359,7 @@ void main() {
 })();
 
 /* ── KNOXVILLE LOCAL OFFER MODAL ───────────────────────── */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-pZM22q0sNbcTdWKuY06mZWhzxhlaBXh_Lsvs9J0KmwMzvWkWSoMUEcqg3mQS7yGC/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVeTDpVfhh75rYTWdl5jPDA_4NmXOAo1F-_x1eTFvpL8zIs-gA7VEAVPLl83dQBmei/exec';
 
 const localModal      = document.getElementById('localModal');
 const openLocalBtn    = document.getElementById('openLocalOffer');
@@ -416,6 +416,8 @@ function openLocalModal(modeKey, trigger) {
   submitBtn.disabled = false;
   submitBtn.textContent = 'Send My Info →';
 
+  if (window.turnstile) turnstile.reset(); // tokens are single-use
+
   localModal.classList.add('is-open');
   localModal.removeAttribute('aria-hidden');
   document.body.style.overflow = 'hidden';
@@ -466,6 +468,9 @@ localForm.addEventListener('submit', async (e) => {
     phoneInput.focus();
     return;
   }
+
+  const tsField = localForm.querySelector('[name="cf-turnstile-response"]');
+  if (tsField && !tsField.value) return; // captcha not solved yet
 
   const submitBtn = localForm.querySelector('.modal__submit');
   submitBtn.disabled = true;

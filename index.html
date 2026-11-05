@@ -132,6 +132,7 @@
           <input type="tel" id="fieldPhone" name="phone" required placeholder="(865) 555-0123" autocomplete="tel" pattern="[\+]?[0-9\s\-\(\)]{7,15}" />
           <span class="field-error" id="phoneError">Please enter a valid phone number.</span>
         </div>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAF09M4RhZAd-sxQ4" data-theme="auto"></div>
         <button type="submit" class="modal__submit">Send My Info →</button>
       </form>
       <div class="modal__success" id="modalSuccess" hidden>
@@ -143,6 +144,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script src="script.js"></script>
 </body>
 </html>

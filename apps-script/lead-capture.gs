@@ -48,8 +48,25 @@ function ensureHeaders(sheet) {
   }
 }
 
+// Turnstile secret lives in Script Properties (Project Settings → Script properties,
+// key TURNSTILE_SECRET), NOT in this file, since the repo is public. If unset, the check is skipped.
+function isHuman(token) {
+  var TURNSTILE_SECRET = PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET');
+  if (!TURNSTILE_SECRET) return true; // not configured yet
+  if (!token) return false;
+  var res = UrlFetchApp.fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'post',
+    payload: { secret: TURNSTILE_SECRET, response: token }
+  });
+  return JSON.parse(res.getContentText()).success === true;
+}
+
 function doPost(e) {
   try {
+    if (!isHuman(e.parameter['cf-turnstile-response'])) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, error: 'captcha' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     var sheet = getLeadSheet();
     ensureHeaders(sheet);
 
